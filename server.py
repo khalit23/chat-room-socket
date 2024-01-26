@@ -6,6 +6,9 @@ HOSTNAME = socket.gethostname()
 IP = socket.gethostbyname(HOSTNAME)
 ADDRESS = (IP, PORT)
 
+def handle_client(client_socket: socket.socket, client_address: tuple):
+    pass
+
 def start_server(address: tuple):
     server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     server.bind(address)
