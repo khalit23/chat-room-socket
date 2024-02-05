@@ -3,8 +3,7 @@ Create a server that clients can connect to and then send messages. Learning how
 
 # Notes
 
-1) Allow clients to identify who they are when connecting to the server
-2) Create list of clients
-3) Create a method to broadcast message to all clients connected to the server
-4) Handle the closing of the server gracefully
-5) Add tests
+1) Create a method to broadcast message to all clients connected to the server
+2) Handle the closing of the server gracefully
+3) Add tests
+4) Optimise code
