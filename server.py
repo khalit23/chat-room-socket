@@ -8,24 +8,38 @@ ADDRESS = (IP, PORT)
 FORMAT = "utf-8"
 
 clients_addresses = []
+client_sockets = []
 address_to_name_translation = {}
 
-def handle_client(client_socket: socket.socket, client_address: tuple):
+def client_introduction(client_socket: socket.socket, client_address: tuple):
     client_name = client_socket.recv(1024).decode(FORMAT)
-    print(f"client: {client_address} is now known as {client_name}")
     address_to_name_translation[client_address] = client_name
+    print(f"{client_name} has connected to the server")
+    print(f"Active number of clients is: {len(clients_addresses)}")
+    return client_name
 
+def client_disconnect(client_socket: socket.socket, client_address: tuple):
+    client_name = address_to_name_translation.get(client_address)
+    client_socket.close()
+    clients_addresses.remove(client_address)
+    print(f"{client_name} has closed their connection and left the chat")
+    print(f"Active number of clients is: {len(clients_addresses)}")
+
+def server_broadcast_message(message: bytes, client_sockets: list[socket.socket]):
+    for client_socket in client_sockets:
+        client_socket.sendall(message)
+
+def handle_client(client_socket: socket.socket, client_address: tuple, server: socket.socket):
+    client_name = client_introduction(client_socket, client_address)
     is_connected = True
     while is_connected:
-        byte_message = client_socket.recv(1024)
-        msg = byte_message.decode(FORMAT)
-        if msg.lower() == "close":
-            print(f"{address_to_name_translation.get(client_address)} has closed their connection and left the chat")
-            client_socket.close()
-            clients_addresses.remove(client_address)
-            print(f"Active number of clients is: {len(clients_addresses)}")
+        client_message = client_socket.recv(1024).decode(FORMAT)
+        if client_message.lower() == "close":
+            client_disconnect(client_socket, client_address)
             break
-        print(f"{address_to_name_translation.get(client_address)}: {msg}")
+        broadcast_message = f"{client_name}: {client_message}"
+        print(broadcast_message)
+        server_broadcast_message(broadcast_message.encode(FORMAT), client_sockets)
 
 def start_server(address: tuple):
     server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -34,11 +48,10 @@ def start_server(address: tuple):
     print(f"[SERVER] is listening ...")
     while True:
         client_socket, client_address = server.accept()
-        print(f"client: {client_address} has joined")
         clients_addresses.append(client_address)
-        thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
+        client_sockets.append(client_socket)
+        thread = threading.Thread(target=handle_client, args=(client_socket, client_address, server))
         thread.start()
-        print(f"Active number of clients is: {len(clients_addresses)}")
 
 if __name__ == "__main__":
     start_server(ADDRESS)
