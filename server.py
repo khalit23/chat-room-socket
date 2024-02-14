@@ -38,7 +38,6 @@ def handle_client(client_socket: socket.socket, client_address: tuple, server: s
             client_disconnect(client_socket, client_address)
             break
         broadcast_message = f"{client_name}: {client_message}"
-        print(broadcast_message)
         server_broadcast_message(broadcast_message.encode(FORMAT), client_sockets)
 
 def start_server(address: tuple):
