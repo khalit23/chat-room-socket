@@ -12,30 +12,37 @@ def client_introduce(client_server: socket.socket):
     client_name = input("Please enter your name: ")
     client_server.send(client_name.encode(FORMAT))
 
-def receive_messages(client_server: socket.socket):
-    while True:
+def receive_messages(client_server: socket.socket, is_connected: bool):
+    while is_connected:
         try:
             received_message = client_server.recv(1024).decode(FORMAT)
+            if not received_message:
+                print("connection closed")
+                is_connected = False
+                break
             print(received_message)
         except ConnectionAbortedError as error:
             print(f"Connection error: {error}")
 
-def send_message(client_server: socket.socket):
-    while True:
+def send_message(client_server: socket.socket, is_connected: bool):
+    while is_connected:
         client_message = input("")
         client_server.send(client_message.encode(FORMAT))
         if client_message.lower() == 'close':
             client_server.close()
+            is_connected = False
             break
 
 def main(client_server: socket.socket, address: tuple):
     client_server.connect(address)
+    is_connected = True
+
     client_introduce(client_server)
 
-    receive_message_thread = threading.Thread(target=receive_messages, args=(CLIENT_SERVER,))
+    receive_message_thread = threading.Thread(target=receive_messages, args=(CLIENT_SERVER, is_connected))
     receive_message_thread.start()
     
-    send_message_thread = threading.Thread(target=send_message, args=(CLIENT_SERVER,))
+    send_message_thread = threading.Thread(target=send_message, args=(CLIENT_SERVER, is_connected))
     send_message_thread.start()
 
 if __name__ == "__main__":
