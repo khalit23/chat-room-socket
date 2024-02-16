@@ -6,6 +6,7 @@ HOSTNAME = socket.gethostname()
 IP = socket.gethostbyname(HOSTNAME)
 ADDRESS = (IP, PORT)
 FORMAT = "utf-8"
+SERVER = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
 clients_addresses = []
 client_sockets = []
@@ -40,8 +41,7 @@ def handle_client(client_socket: socket.socket, client_address: tuple, server: s
         broadcast_message = f"{client_name}: {client_message}"
         server_broadcast_message(broadcast_message.encode(FORMAT), client_sockets)
 
-def start_server(address: tuple):
-    server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+def main(address: tuple, server: socket.socket):
     server.bind(address)
     server.listen()
     print(f"[SERVER] is listening ...")
@@ -53,4 +53,4 @@ def start_server(address: tuple):
         thread.start()
 
 if __name__ == "__main__":
-    start_server(ADDRESS)
+    main(ADDRESS, SERVER)
