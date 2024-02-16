@@ -3,7 +3,8 @@ Create a server that clients can connect to and then send messages. Learning how
 
 # Notes
 
-1) Client does not need to see the message he sends, in his chat area.
+1) Clients should be notified every time a new connection to the server is established
+2) Clients should be notified everytime a connection to the server has been closed
 2) Handle the closing of the server gracefully
 3) Optimise code
 4) Add tests 
