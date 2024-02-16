@@ -26,12 +26,14 @@ def client_disconnect(client_socket: socket.socket, client_address: tuple):
     print(f"{client_name} has closed their connection and left the chat")
     print(f"Active number of clients is: {len(clients_addresses)}")
 
-def server_broadcast_message(message: bytes, client_sockets: list[socket.socket]):
+def server_broadcast_message(message: bytes, sender: socket.socket, client_sockets: list[socket.socket]):
     for client_socket in client_sockets:
-        client_socket.sendall(message)
+        if client_socket != sender:
+            client_socket.sendall(message)
 
 def handle_client(client_socket: socket.socket, client_address: tuple, server: socket.socket):
     client_name = client_introduction(client_socket, client_address)
+    sender = client_socket
     is_connected = True
     while is_connected:
         client_message = client_socket.recv(1024).decode(FORMAT)
@@ -39,7 +41,7 @@ def handle_client(client_socket: socket.socket, client_address: tuple, server: s
             client_disconnect(client_socket, client_address)
             break
         broadcast_message = f"{client_name}: {client_message}"
-        server_broadcast_message(broadcast_message.encode(FORMAT), client_sockets)
+        server_broadcast_message(broadcast_message.encode(FORMAT), sender, client_sockets)
 
 def main(address: tuple, server: socket.socket):
     server.bind(address)
