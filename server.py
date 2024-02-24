@@ -38,8 +38,6 @@ def server_broadcast_message(message: bytes, sender: socket.socket):
             client_socket.sendall(message)
 
 def broadcast_new_client_connection(client: socket.socket, name: str, sockets: list):
-    if len(sockets) <= 1:
-        return
     for client_socket in client_sockets:
         if client_socket != client:
             connection_message = f"{name} has joined the server"
