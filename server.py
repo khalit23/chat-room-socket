@@ -46,9 +46,7 @@ def broadcast_new_client_connection(client: socket.socket, name: str):
 def handle_client(client_socket: socket.socket, client_address: tuple, server: socket.socket):
     client_name = client_introduction(client_socket, client_address)
     sender = client_socket
-
     broadcast_new_client_connection(client_socket, client_name)
-
     is_connected = True
     while is_connected:
         client_message = client_socket.recv(1024).decode(FORMAT)
