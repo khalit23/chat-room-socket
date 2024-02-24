@@ -32,14 +32,24 @@ def broadcast_client_disconnect(disconnected_client: socket.socket, name: str):
         if disconnected_client != client_socket:
             client_socket.sendall(disconnect_message.encode(FORMAT))
 
-def server_broadcast_message(message: bytes, sender: socket.socket, client_sockets: list[socket.socket]):
+def server_broadcast_message(message: bytes, sender: socket.socket):
     for client_socket in client_sockets:
         if client_socket != sender:
             client_socket.sendall(message)
 
+def broadcast_new_client_connection(client: socket.socket, name: str, sockets: list):
+    if len(sockets) <= 1:
+        return
+    for client_socket in client_sockets:
+        if client_socket != client:
+            connection_message = f"{name} has joined the server"
+            client_socket.sendall(connection_message.encode(FORMAT))
+
 def handle_client(client_socket: socket.socket, client_address: tuple, server: socket.socket):
     client_name = client_introduction(client_socket, client_address)
     sender = client_socket
+
+    broadcast_new_client_connection(client_socket, client_name)
 
     is_connected = True
     while is_connected:
