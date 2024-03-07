@@ -23,25 +23,33 @@ def client_disconnect(client_socket: socket.socket, client_address: tuple):
     client_name = address_to_name_translation.get(client_address)
     client_socket.close()
     clients_addresses.remove(client_address)
+    del address_to_name_translation[client_address]
     print(f"{client_name} has closed their connection and left the chat")
     print(f"Active number of clients is: {len(clients_addresses)}")
 
+def socket_is_closed(client_socket: socket.socket):
+    if client_socket.fileno() == -1:
+        return True
+
 def broadcast_client_disconnect(disconnected_client: socket.socket, name: str):
-    disconnect_message = f"{name} has disconnected from the server"
+    disconnect_message = f"{name} has disconnected from the server".encode(FORMAT)
     for client_socket in client_sockets:
-        if disconnected_client != client_socket:
-            client_socket.sendall(disconnect_message.encode(FORMAT))
+        if not socket_is_closed(client_socket):
+            if disconnected_client != client_socket:
+                client_socket.sendall(disconnect_message)
 
 def server_broadcast_message(message: bytes, sender: socket.socket):
     for client_socket in client_sockets:
-        if client_socket != sender:
-            client_socket.sendall(message)
+        if not socket_is_closed(client_socket):
+            if client_socket != sender:
+                client_socket.sendall(message)
 
 def broadcast_new_client_connection(client: socket.socket, name: str):
     for client_socket in client_sockets:
-        if client_socket != client:
-            connection_message = f"{name} has joined the server"
-            client_socket.sendall(connection_message.encode(FORMAT))
+        if not socket_is_closed(client_socket):
+            if client_socket != client:
+                connection_message = f"{name} has joined the server"
+                client_socket.sendall(connection_message.encode(FORMAT))
 
 def handle_client(client_socket: socket.socket, client_address: tuple, server: socket.socket):
     client_name = client_introduction(client_socket, client_address)
