@@ -55,8 +55,7 @@ def handle_client(client_socket: socket.socket, client_address: tuple, server: s
     client_name = client_introduction(client_socket, client_address)
     sender = client_socket
     broadcast_new_client_connection(client_socket, client_name)
-    is_connected = True
-    while is_connected:
+    while True:
         client_message = client_socket.recv(1024).decode(FORMAT)
         if client_message.lower() == "close":
             client_disconnect(client_socket, client_address)
